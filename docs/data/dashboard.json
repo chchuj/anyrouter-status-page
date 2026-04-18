@@ -1,0 +1,213 @@
+{
+  "generated_at": "2026-04-18T10:23:10Z",
+  "window_hours": 168,
+  "summary": {
+    "total": 8,
+    "operational": 8,
+    "degraded": 0,
+    "major_outage": 0,
+    "no_data": 0
+  },
+  "accounts": [
+    {
+      "id": "acc01",
+      "name": "c***e",
+      "service_name": "c***e Probe",
+      "target_model": "claude-opus-4-7[1m]",
+      "overall_status": "operational",
+      "http_status": 200,
+      "token_ok": true,
+      "last_token": "A",
+      "latency_ms": 2648.24,
+      "checked_at": "2026-04-18T10:22:52Z",
+      "error_message": "",
+      "raw_error_type": null,
+      "buckets": [
+        {
+          "hour": "2026-04-18T10:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 2648.24,
+          "last_error_message": "",
+          "status": "operational"
+        }
+      ]
+    },
+    {
+      "id": "acc02",
+      "name": "c***7",
+      "service_name": "c***7 Probe",
+      "target_model": "claude-opus-4-7[1m]",
+      "overall_status": "operational",
+      "http_status": 200,
+      "token_ok": true,
+      "last_token": "A",
+      "latency_ms": 2294.63,
+      "checked_at": "2026-04-18T10:22:54Z",
+      "error_message": "",
+      "raw_error_type": null,
+      "buckets": [
+        {
+          "hour": "2026-04-18T10:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 2294.63,
+          "last_error_message": "",
+          "status": "operational"
+        }
+      ]
+    },
+    {
+      "id": "acc03",
+      "name": "c***3",
+      "service_name": "c***3 Probe",
+      "target_model": "claude-opus-4-7[1m]",
+      "overall_status": "operational",
+      "http_status": 200,
+      "token_ok": true,
+      "last_token": "A",
+      "latency_ms": 3007.94,
+      "checked_at": "2026-04-18T10:22:56Z",
+      "error_message": "",
+      "raw_error_type": null,
+      "buckets": [
+        {
+          "hour": "2026-04-18T10:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 3007.94,
+          "last_error_message": "",
+          "status": "operational"
+        }
+      ]
+    },
+    {
+      "id": "acc04",
+      "name": "c***6",
+      "service_name": "c***6 Probe",
+      "target_model": "claude-opus-4-7[1m]",
+      "overall_status": "operational",
+      "http_status": 200,
+      "token_ok": true,
+      "last_token": "A",
+      "latency_ms": 2450.24,
+      "checked_at": "2026-04-18T10:22:59Z",
+      "error_message": "",
+      "raw_error_type": null,
+      "buckets": [
+        {
+          "hour": "2026-04-18T10:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 2450.24,
+          "last_error_message": "",
+          "status": "operational"
+        }
+      ]
+    },
+    {
+      "id": "acc05",
+      "name": "c***2",
+      "service_name": "c***2 Probe",
+      "target_model": "claude-opus-4-7[1m]",
+      "overall_status": "operational",
+      "http_status": 200,
+      "token_ok": true,
+      "last_token": "A",
+      "latency_ms": 2133.3,
+      "checked_at": "2026-04-18T10:23:02Z",
+      "error_message": "",
+      "raw_error_type": null,
+      "buckets": [
+        {
+          "hour": "2026-04-18T10:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 2133.3,
+          "last_error_message": "",
+          "status": "operational"
+        }
+      ]
+    },
+    {
+      "id": "acc06",
+      "name": "c***3",
+      "service_name": "c***3 Probe",
+      "target_model": "claude-opus-4-7[1m]",
+      "overall_status": "operational",
+      "http_status": 200,
+      "token_ok": true,
+      "last_token": "A",
+      "latency_ms": 2359.59,
+      "checked_at": "2026-04-18T10:23:04Z",
+      "error_message": "",
+      "raw_error_type": null,
+      "buckets": [
+        {
+          "hour": "2026-04-18T10:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 2359.59,
+          "last_error_message": "",
+          "status": "operational"
+        }
+      ]
+    },
+    {
+      "id": "acc07",
+      "name": "h***7",
+      "service_name": "h***7 Probe",
+      "target_model": "claude-opus-4-7[1m]",
+      "overall_status": "operational",
+      "http_status": 200,
+      "token_ok": true,
+      "last_token": "A",
+      "latency_ms": 1446.33,
+      "checked_at": "2026-04-18T10:23:06Z",
+      "error_message": "",
+      "raw_error_type": null,
+      "buckets": [
+        {
+          "hour": "2026-04-18T10:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 1446.33,
+          "last_error_message": "",
+          "status": "operational"
+        }
+      ]
+    },
+    {
+      "id": "acc08",
+      "name": "s***6",
+      "service_name": "s***6 Probe",
+      "target_model": "claude-opus-4-7[1m]",
+      "overall_status": "operational",
+      "http_status": 200,
+      "token_ok": true,
+      "last_token": "A",
+      "latency_ms": 2209.43,
+      "checked_at": "2026-04-18T10:23:08Z",
+      "error_message": "",
+      "raw_error_type": null,
+      "buckets": [
+        {
+          "hour": "2026-04-18T10:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 2209.43,
+          "last_error_message": "",
+          "status": "operational"
+        }
+      ]
+    }
+  ]
+}
