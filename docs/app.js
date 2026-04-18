@@ -1,12 +1,11 @@
-const STATUS_URL = "./data/status.json";
-const HISTORY_URL = "./data/history.json";
+const DASHBOARD_URL = "./data/dashboard.json";
 const WINDOW_HOURS = 24 * 7;
 
 const statusLabels = {
-  operational: "Operational",
-  degraded: "Degraded",
-  major_outage: "Major Outage",
-  no_data: "No Data",
+  operational: "正常",
+  degraded: "部分失败",
+  major_outage: "故障",
+  no_data: "无数据",
 };
 
 const bannerText = {
@@ -55,6 +54,15 @@ function fmtHourRange(value) {
   return `${datePart} ${startTime} - ${endTime}`;
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function setText(id, value) {
   const node = document.getElementById(id);
   if (node) node.textContent = value;
@@ -62,38 +70,38 @@ function setText(id, value) {
 
 function setBanner(status) {
   const banner = document.getElementById("overallBanner");
+  if (!banner) return;
   banner.className = `banner banner-${status}`;
   banner.textContent = bannerText[status] || bannerText.no_data;
 }
 
-function setPill(status) {
-  const pill = document.getElementById("servicePill");
-  pill.className = `pill pill-${status}`;
-  pill.textContent = statusLabels[status] || statusLabels.no_data;
+function deriveOverallStatus(summary) {
+  if (!summary || !summary.total) return "no_data";
+  if ((summary.major_outage || 0) > 0) return "major_outage";
+  if ((summary.degraded || 0) > 0) return "degraded";
+  if ((summary.operational || 0) > 0) return "operational";
+  return "no_data";
 }
 
-function fillStatus(status) {
-  const probeStatus = status.overall_status || "no_data";
-  setBanner(probeStatus);
-  setPill(probeStatus);
-  setText("lastUpdated", `Last checked: ${fmtDate(status.checked_at)}`);
-  setText("serviceName", status.service_name || "Anyrouter Claude Code Probe");
-  setText("httpStatus", status.http_status ?? "-");
-  setText("tokenOk", status.token_ok ? "Yes" : "No");
-  setText("latencyMs", status.latency_ms == null ? "-" : `${status.latency_ms} ms`);
-  setText("targetModel", status.target_model || "-");
-  setText("lastToken", status.last_token || "-");
-  setText("errorMessage", status.error_message || "-");
+function fillSummary(summary, generatedAt) {
+  const overall = deriveOverallStatus(summary);
+  setBanner(overall);
+  setText("lastUpdated", `Last checked: ${fmtDate(generatedAt)}`);
+  setText("summaryTotal", summary?.total ?? 0);
+  setText("summaryOperational", summary?.operational ?? 0);
+  setText("summaryDegraded", summary?.degraded ?? 0);
+  setText("summaryOutage", summary?.major_outage ?? 0);
 }
 
-function bucketTooltip(bucket) {
+function bucketTooltip(accountName, bucket) {
   const httpStatus = bucket.last_http_status == null ? "-" : bucket.last_http_status;
-  const failures = Math.max(0, bucket.checks - bucket.successes);
+  const failures = Math.max(0, (bucket.checks || 0) - (bucket.successes || 0));
   return [
+    `账号: ${accountName}`,
     `时间: ${fmtHourRange(bucket.hour)}`,
     `状态: ${statusLabels[bucket.status] || statusLabels.no_data}`,
-    `请求次数: ${bucket.checks}`,
-    `成功次数: ${bucket.successes}`,
+    `请求次数: ${bucket.checks || 0}`,
+    `成功次数: ${bucket.successes || 0}`,
     `失败次数: ${failures}`,
     `HTTP: ${httpStatus}`,
     `平均耗时: ${bucket.avg_latency_ms == null ? "-" : `${bucket.avg_latency_ms} ms`}`,
@@ -131,21 +139,39 @@ function hideGridTooltip() {
   tooltip.hidden = true;
 }
 
-function fillHistory(history) {
-  const grid = document.getElementById("uptimeGrid");
-  grid.innerHTML = "";
+function calculateUptime(buckets) {
+  let totalChecks = 0;
+  let totalSuccesses = 0;
+  for (const bucket of buckets || []) {
+    totalChecks += bucket.checks || 0;
+    totalSuccesses += bucket.successes || 0;
+  }
+  if (totalChecks <= 0) return "0.00";
+  return ((totalSuccesses / totalChecks) * 100).toFixed(2);
+}
+
+function createMetric(label, value) {
+  const metric = document.createElement("div");
+  metric.className = "metric";
+  metric.innerHTML = `
+    <span class="metric-label">${escapeHtml(label)}</span>
+    <strong>${escapeHtml(value)}</strong>
+  `;
+  return metric;
+}
+
+function buildHistoryGrid(accountName, buckets, generatedAt) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "uptime-grid";
 
   const map = new Map();
-  for (const bucket of history.buckets || []) {
+  for (const bucket of buckets || []) {
     map.set(bucket.hour, bucket);
   }
 
-  const generated = history.generated_at ? new Date(history.generated_at) : new Date();
+  const generated = generatedAt ? new Date(generatedAt) : new Date();
   const aligned = new Date(generated);
   aligned.setUTCMinutes(0, 0, 0);
-
-  let totalChecks = 0;
-  let totalSuccesses = 0;
 
   for (let offset = WINDOW_HOURS - 1; offset >= 0; offset -= 1) {
     const dt = new Date(aligned.getTime() - offset * 60 * 60 * 1000);
@@ -159,12 +185,10 @@ function fillHistory(history) {
       last_error_message: "",
       status: "no_data",
     };
-    totalChecks += bucket.checks;
-    totalSuccesses += bucket.successes;
 
     const cell = document.createElement("div");
     cell.className = `uptime-cell cell-${bucket.status || "no_data"}`;
-    const tooltip = bucketTooltip(bucket);
+    const tooltip = bucketTooltip(accountName, bucket);
     cell.title = tooltip;
     cell.setAttribute("tabindex", "0");
     cell.setAttribute("role", "button");
@@ -180,11 +204,110 @@ function fillHistory(history) {
       });
     });
     cell.addEventListener("blur", hideGridTooltip);
-    grid.appendChild(cell);
+    wrapper.appendChild(cell);
   }
 
-  const uptime = totalChecks > 0 ? ((totalSuccesses / totalChecks) * 100).toFixed(2) : "0.00";
-  setText("uptimeValue", `${uptime}% uptime`);
+  return wrapper;
+}
+
+function renderAccountCard(account, generatedAt) {
+  const article = document.createElement("article");
+  article.className = "card account-card";
+
+  const uptime = calculateUptime(account.buckets || []);
+  const status = account.overall_status || "no_data";
+  const httpStatus = account.http_status ?? "-";
+  const tokenOk = account.token_ok ? "Yes" : "No";
+  const latency = account.latency_ms == null ? "-" : `${account.latency_ms} ms`;
+  const targetModel = account.target_model || "-";
+  const lastToken = account.last_token || "-";
+  const errorMessage = account.error_message || "-";
+
+  article.innerHTML = `
+    <div class="card-header">
+      <div>
+        <h2>${escapeHtml(account.name || account.id || "Unknown")}</h2>
+        <p class="muted">${escapeHtml(statusLabels[status] || statusLabels.no_data)}</p>
+      </div>
+      <span class="pill pill-${escapeHtml(status)}">${escapeHtml(statusLabels[status] || statusLabels.no_data)}</span>
+    </div>
+  `;
+
+  const metrics = document.createElement("div");
+  metrics.className = "metrics";
+  metrics.appendChild(createMetric("HTTP Status", httpStatus));
+  metrics.appendChild(createMetric("吐出 token", tokenOk));
+  metrics.appendChild(createMetric("响应耗时", latency));
+  metrics.appendChild(createMetric("目标模型", targetModel));
+  article.appendChild(metrics);
+
+  const detailList = document.createElement("div");
+  detailList.className = "detail-list";
+  detailList.innerHTML = `
+    <div>
+      <span class="detail-label">最近 token</span>
+      <code>${escapeHtml(lastToken)}</code>
+    </div>
+    <div>
+      <span class="detail-label">错误信息</span>
+      <code>${escapeHtml(errorMessage)}</code>
+    </div>
+    <div>
+      <span class="detail-label">最近检查时间</span>
+      <code>${escapeHtml(fmtDate(account.checked_at))}</code>
+    </div>
+  `;
+  article.appendChild(detailList);
+
+  const historyHeader = document.createElement("div");
+  historyHeader.className = "card-header account-history-header";
+  historyHeader.innerHTML = `
+    <div>
+      <h2>最近 7 天</h2>
+      <p class="muted">按小时聚合，共 168 格</p>
+    </div>
+    <span class="uptime-value">${escapeHtml(`${uptime}% uptime`)}</span>
+  `;
+  article.appendChild(historyHeader);
+
+  article.appendChild(buildHistoryGrid(account.name || account.id || "Unknown", account.buckets || [], generatedAt));
+
+  const legend = document.createElement("div");
+  legend.className = "legend";
+  legend.innerHTML = `
+    <span><i class="dot dot-green"></i> 正常</span>
+    <span><i class="dot dot-yellow"></i> 部分失败</span>
+    <span><i class="dot dot-red"></i> 故障</span>
+    <span><i class="dot dot-gray"></i> 无数据</span>
+  `;
+  article.appendChild(legend);
+
+  return article;
+}
+
+function renderAccounts(accounts, generatedAt) {
+  const grid = document.getElementById("accountsGrid");
+  if (!grid) return;
+  grid.innerHTML = "";
+
+  if (!accounts || accounts.length === 0) {
+    const empty = document.createElement("article");
+    empty.className = "card";
+    empty.innerHTML = `
+      <div class="card-header">
+        <div>
+          <h2>暂无账号数据</h2>
+          <p class="muted">请检查 workflow 是否已配置多账号 secrets，并等待下一次探测。</p>
+        </div>
+      </div>
+    `;
+    grid.appendChild(empty);
+    return;
+  }
+
+  for (const account of accounts) {
+    grid.appendChild(renderAccountCard(account, generatedAt));
+  }
 }
 
 async function fetchJson(url) {
@@ -197,14 +320,25 @@ async function fetchJson(url) {
 
 async function loadPage() {
   try {
-    const [status, history] = await Promise.all([fetchJson(STATUS_URL), fetchJson(HISTORY_URL)]);
-    fillStatus(status);
-    fillHistory(history);
+    const dashboard = await fetchJson(DASHBOARD_URL);
+    fillSummary(dashboard.summary || {}, dashboard.generated_at);
+    renderAccounts(dashboard.accounts || [], dashboard.generated_at);
   } catch (error) {
     setBanner("major_outage");
-    setPill("major_outage");
     setText("lastUpdated", "Failed to load status data");
-    setText("errorMessage", String(error));
+    const grid = document.getElementById("accountsGrid");
+    if (grid) {
+      grid.innerHTML = `
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <h2>加载失败</h2>
+              <p class="muted">${escapeHtml(String(error))}</p>
+            </div>
+          </div>
+        </article>
+      `;
+    }
   }
 }
 
