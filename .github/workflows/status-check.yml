@@ -38,23 +38,52 @@ jobs:
       - name: Probe and update data
         env:
           ANYROUTER_API_BASE: ${{ secrets.ANYROUTER_API_BASE }}
-          ANYROUTER_API_KEY: ${{ secrets.ANYROUTER_API_KEY }}
           ANYROUTER_MODEL: ${{ secrets.ANYROUTER_MODEL }}
+
+          ANYR_01_NAME: ${{ secrets.ANYR_01_NAME }}
+          ANYR_01_API_KEY: ${{ secrets.ANYR_01_API_KEY }}
+
+          ANYR_02_NAME: ${{ secrets.ANYR_02_NAME }}
+          ANYR_02_API_KEY: ${{ secrets.ANYR_02_API_KEY }}
+
+          ANYR_03_NAME: ${{ secrets.ANYR_03_NAME }}
+          ANYR_03_API_KEY: ${{ secrets.ANYR_03_API_KEY }}
+
+          ANYR_04_NAME: ${{ secrets.ANYR_04_NAME }}
+          ANYR_04_API_KEY: ${{ secrets.ANYR_04_API_KEY }}
+
+          ANYR_05_NAME: ${{ secrets.ANYR_05_NAME }}
+          ANYR_05_API_KEY: ${{ secrets.ANYR_05_API_KEY }}
+
+          ANYR_06_NAME: ${{ secrets.ANYR_06_NAME }}
+          ANYR_06_API_KEY: ${{ secrets.ANYR_06_API_KEY }}
+
+          ANYR_07_NAME: ${{ secrets.ANYR_07_NAME }}
+          ANYR_07_API_KEY: ${{ secrets.ANYR_07_API_KEY }}
+
+          ANYR_08_NAME: ${{ secrets.ANYR_08_NAME }}
+          ANYR_08_API_KEY: ${{ secrets.ANYR_08_API_KEY }}
+
+          ANYR_09_NAME: ${{ secrets.ANYR_09_NAME }}
+          ANYR_09_API_KEY: ${{ secrets.ANYR_09_API_KEY }}
+
+          ANYR_10_NAME: ${{ secrets.ANYR_10_NAME }}
+          ANYR_10_API_KEY: ${{ secrets.ANYR_10_API_KEY }}
         run: |
           set -euo pipefail
           python scripts/check_anyrouter.py
 
-      - name: Commit updated status data back to repo
+      - name: Commit updated dashboard data back to repo
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/data/status.json docs/data/history.json || true
+          git add docs/data/dashboard.json || true
 
           if git diff --cached --quiet; then
             echo "No data changes to commit"
           else
-            git commit -m "chore(status): refresh anyrouter probe data"
+            git commit -m "chore(status): refresh multi-account dashboard data"
             git push
           fi
 
