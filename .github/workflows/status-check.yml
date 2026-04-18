@@ -1,8 +1,8 @@
 name: anyrouter-status-check
 
 on:
-  # schedule:
-  #   - cron: "2,7,12,17,22,27,32,37,42,47,52,57 * * * *"
+  schedule:
+    - cron: "2,12,22,32,42,52 * * * *"
   workflow_dispatch:
 
 concurrency:
@@ -11,15 +11,21 @@ concurrency:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
   probe:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -29,44 +35,46 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Probe and publish data
+      - name: Probe and update data
         env:
           ANYROUTER_API_BASE: ${{ secrets.ANYROUTER_API_BASE }}
           ANYROUTER_API_KEY: ${{ secrets.ANYROUTER_API_KEY }}
           ANYROUTER_MODEL: ${{ secrets.ANYROUTER_MODEL }}
         run: |
           set -euo pipefail
+          python scripts/check_anyrouter.py
 
+      - name: Commit updated status data back to repo
+        run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/status.json docs/data/history.json || true
 
-          attempt=1
-          max_attempts=3
-
-          while [ "$attempt" -le "$max_attempts" ]; do
-            echo "Publish attempt $attempt/$max_attempts"
-
-            git fetch origin main
-            git reset --hard origin/main
-
-            python scripts/check_anyrouter.py
-
-            git add docs/data/status.json docs/data/history.json
-            if git diff --cached --quiet; then
-              echo "No data changes to commit"
-              exit 0
-            fi
-
+          if git diff --cached --quiet; then
+            echo "No data changes to commit"
+          else
             git commit -m "chore(status): refresh anyrouter probe data"
+            git push
+          fi
 
-            if git push origin HEAD:main; then
-              echo "Publish succeeded"
-              exit 0
-            fi
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
 
-            echo "Push failed; retrying on top of the latest origin/main"
-            attempt=$((attempt + 1))
-          done
+  deploy:
+    needs: probe
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
-          echo "Failed to publish data after $max_attempts attempts" >&2
-          exit 1
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
