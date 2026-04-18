@@ -25,7 +25,7 @@ body {
 }
 
 .page {
-  max-width: 1080px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 32px 20px 48px;
 }
@@ -54,6 +54,10 @@ p {
 h1 {
   font-size: 40px;
   margin-bottom: 10px;
+}
+
+h2 {
+  font-size: 22px;
 }
 
 .subtitle,
@@ -94,6 +98,47 @@ h1 {
   background: var(--neutral);
 }
 
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.summary-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: var(--shadow);
+}
+
+.summary-label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.summary-card strong {
+  font-size: 34px;
+  line-height: 1;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.accounts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
 .grid {
   display: grid;
   gap: 20px;
@@ -107,24 +152,36 @@ h1 {
   box-shadow: var(--shadow);
 }
 
+.account-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;
   gap: 16px;
   align-items: flex-start;
-  margin-bottom: 20px;
+}
+
+.account-history-header {
+  margin-top: 2px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
 }
 
 .pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 118px;
+  min-width: 108px;
   border-radius: 999px;
   padding: 8px 12px;
   font-size: 14px;
   font-weight: 700;
   color: #fff;
+  text-align: center;
 }
 
 .pill-operational {
@@ -148,7 +205,10 @@ h1 {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
-  margin-bottom: 20px;
+}
+
+.account-card .metrics {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .metric {
@@ -181,7 +241,7 @@ code {
   border-radius: 10px;
   background: #f0f4fa;
   border: 1px solid var(--border);
-  font-family: ui-monospace, SFMono-Regular, SFMono-Regular, Menlo, Consolas, monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   word-break: break-word;
 }
 
@@ -194,6 +254,10 @@ code {
   display: grid;
   grid-template-columns: repeat(24, minmax(0, 1fr));
   gap: 6px;
+}
+
+.account-card .uptime-grid {
+  gap: 4px;
 }
 
 .uptime-cell {
@@ -232,7 +296,6 @@ code {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  margin-top: 16px;
   color: var(--muted);
   font-size: 14px;
 }
@@ -281,13 +344,26 @@ code {
   display: none;
 }
 
+@media (max-width: 1100px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .accounts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 900px) {
   .hero,
-  .card-header {
+  .card-header,
+  .section-header,
+  .account-history-header {
     flex-direction: column;
   }
 
-  .metrics {
+  .metrics,
+  .account-card .metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -301,12 +377,18 @@ code {
     font-size: 30px;
   }
 
+  h2 {
+    font-size: 20px;
+  }
+
   .banner {
     font-size: 24px;
     padding: 18px 20px;
   }
 
-  .metrics {
+  .summary-grid,
+  .metrics,
+  .account-card .metrics {
     grid-template-columns: 1fr;
   }
 
