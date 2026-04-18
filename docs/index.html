@@ -12,7 +12,7 @@
         <div>
           <p class="eyebrow">STATUS PAGE</p>
           <h1>Anyrouter Status</h1>
-          <p class="subtitle">监控项：模拟 Claude Code 请求，验证 anyrouter 是否能返回 1 个 token。</p>
+          <p class="subtitle">监控项：模拟 Claude Code 请求，验证多个 anyrouter 账号是否能返回 1 个 token。</p>
         </div>
         <div class="meta">
           <span id="lastUpdated">加载中...</span>
@@ -23,61 +23,33 @@
         正在加载状态...
       </section>
 
-      <section class="grid">
-        <article class="card">
-          <div class="card-header">
-            <div>
-              <h2 id="serviceName">Anyrouter Claude Code Probe</h2>
-              <p class="muted">合成探针</p>
-            </div>
-            <span id="servicePill" class="pill pill-neutral">No data</span>
-          </div>
-          <div class="metrics">
-            <div class="metric">
-              <span class="metric-label">HTTP Status</span>
-              <strong id="httpStatus">-</strong>
-            </div>
-            <div class="metric">
-              <span class="metric-label">吐出 token</span>
-              <strong id="tokenOk">-</strong>
-            </div>
-            <div class="metric">
-              <span class="metric-label">响应耗时</span>
-              <strong id="latencyMs">-</strong>
-            </div>
-            <div class="metric">
-              <span class="metric-label">目标模型</span>
-              <strong id="targetModel">-</strong>
-            </div>
-          </div>
-          <div class="detail-list">
-            <div>
-              <span class="detail-label">最近 token</span>
-              <code id="lastToken">-</code>
-            </div>
-            <div>
-              <span class="detail-label">错误信息</span>
-              <code id="errorMessage">-</code>
-            </div>
-          </div>
+      <section class="summary-grid" id="summaryGrid">
+        <article class="summary-card">
+          <span class="summary-label">账号总数</span>
+          <strong id="summaryTotal">-</strong>
         </article>
+        <article class="summary-card">
+          <span class="summary-label">正常</span>
+          <strong id="summaryOperational">-</strong>
+        </article>
+        <article class="summary-card">
+          <span class="summary-label">部分失败</span>
+          <strong id="summaryDegraded">-</strong>
+        </article>
+        <article class="summary-card">
+          <span class="summary-label">故障</span>
+          <strong id="summaryOutage">-</strong>
+        </article>
+      </section>
 
-        <article class="card">
-          <div class="card-header">
-            <div>
-              <h2>最近 7 天</h2>
-              <p class="muted">按小时聚合，共 168 格</p>
-            </div>
-            <span id="uptimeValue" class="uptime-value">-</span>
+      <section>
+        <div class="section-header">
+          <div>
+            <h2>账号状态面板</h2>
+            <p class="muted">每张卡片对应 1 个账号；账号名称已脱敏显示。</p>
           </div>
-          <div id="uptimeGrid" class="uptime-grid" aria-label="7 day uptime grid"></div>
-          <div class="legend">
-            <span><i class="dot dot-green"></i> 正常</span>
-            <span><i class="dot dot-yellow"></i> 部分失败</span>
-            <span><i class="dot dot-red"></i> 故障</span>
-            <span><i class="dot dot-gray"></i> 无数据</span>
-          </div>
-        </article>
+        </div>
+        <div id="accountsGrid" class="accounts-grid"></div>
       </section>
     </main>
 
