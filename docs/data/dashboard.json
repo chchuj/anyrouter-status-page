@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-04-18T15:49:25Z",
+  "generated_at": "2026-04-18T16:26:55Z",
   "window_hours": 168,
   "summary": {
     "total": 8,
-    "operational": 8,
+    "operational": 7,
     "degraded": 0,
-    "major_outage": 0,
+    "major_outage": 1,
     "no_data": 0
   },
   "accounts": [
@@ -18,8 +18,8 @@
       "http_status": 200,
       "token_ok": true,
       "last_token": "A",
-      "latency_ms": 4143.59,
-      "checked_at": "2026-04-18T15:48:53Z",
+      "latency_ms": 2704.4,
+      "checked_at": "2026-04-18T16:26:34Z",
       "error_message": "",
       "raw_error_type": null,
       "buckets": [
@@ -67,6 +67,15 @@
           "avg_latency_ms": 4143.59,
           "last_error_message": "",
           "status": "operational"
+        },
+        {
+          "hour": "2026-04-18T16:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 2704.4,
+          "last_error_message": "",
+          "status": "operational"
         }
       ]
     },
@@ -79,8 +88,8 @@
       "http_status": 200,
       "token_ok": true,
       "last_token": "A",
-      "latency_ms": 1606.12,
-      "checked_at": "2026-04-18T15:48:57Z",
+      "latency_ms": 2207.13,
+      "checked_at": "2026-04-18T16:26:37Z",
       "error_message": "",
       "raw_error_type": null,
       "buckets": [
@@ -128,6 +137,15 @@
           "avg_latency_ms": 1606.12,
           "last_error_message": "",
           "status": "operational"
+        },
+        {
+          "hour": "2026-04-18T16:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 2207.13,
+          "last_error_message": "",
+          "status": "operational"
         }
       ]
     },
@@ -140,8 +158,8 @@
       "http_status": 200,
       "token_ok": true,
       "last_token": "A",
-      "latency_ms": 11155.7,
-      "checked_at": "2026-04-18T15:48:59Z",
+      "latency_ms": 2493.69,
+      "checked_at": "2026-04-18T16:26:39Z",
       "error_message": "",
       "raw_error_type": null,
       "buckets": [
@@ -189,6 +207,15 @@
           "avg_latency_ms": 11155.7,
           "last_error_message": "",
           "status": "operational"
+        },
+        {
+          "hour": "2026-04-18T16:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 2493.69,
+          "last_error_message": "",
+          "status": "operational"
         }
       ]
     },
@@ -201,8 +228,8 @@
       "http_status": 200,
       "token_ok": true,
       "last_token": "A",
-      "latency_ms": 2130.52,
-      "checked_at": "2026-04-18T15:49:10Z",
+      "latency_ms": 2681.64,
+      "checked_at": "2026-04-18T16:26:41Z",
       "error_message": "",
       "raw_error_type": null,
       "buckets": [
@@ -250,6 +277,15 @@
           "avg_latency_ms": 2130.52,
           "last_error_message": "",
           "status": "operational"
+        },
+        {
+          "hour": "2026-04-18T16:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 2681.64,
+          "last_error_message": "",
+          "status": "operational"
         }
       ]
     },
@@ -262,8 +298,8 @@
       "http_status": 200,
       "token_ok": true,
       "last_token": "A",
-      "latency_ms": 3652.52,
-      "checked_at": "2026-04-18T15:49:12Z",
+      "latency_ms": 3430.64,
+      "checked_at": "2026-04-18T16:26:44Z",
       "error_message": "",
       "raw_error_type": null,
       "buckets": [
@@ -311,6 +347,15 @@
           "avg_latency_ms": 3652.52,
           "last_error_message": "",
           "status": "operational"
+        },
+        {
+          "hour": "2026-04-18T16:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 3430.64,
+          "last_error_message": "",
+          "status": "operational"
         }
       ]
     },
@@ -319,13 +364,13 @@
       "name": "c***3",
       "service_name": "c***3 Probe",
       "target_model": "claude-opus-4-7[1m]",
-      "overall_status": "operational",
-      "http_status": 200,
-      "token_ok": true,
-      "last_token": "A",
-      "latency_ms": 4429.25,
-      "checked_at": "2026-04-18T15:49:16Z",
-      "error_message": "",
+      "overall_status": "major_outage",
+      "http_status": 520,
+      "token_ok": false,
+      "last_token": "",
+      "latency_ms": 1746.35,
+      "checked_at": "2026-04-18T16:26:48Z",
+      "error_message": "HTTP 520",
       "raw_error_type": null,
       "buckets": [
         {
@@ -372,6 +417,15 @@
           "avg_latency_ms": 4429.25,
           "last_error_message": "",
           "status": "operational"
+        },
+        {
+          "hour": "2026-04-18T16:00:00Z",
+          "checks": 1,
+          "successes": 0,
+          "last_http_status": 520,
+          "avg_latency_ms": 1746.35,
+          "last_error_message": "HTTP 520",
+          "status": "major_outage"
         }
       ]
     },
@@ -384,8 +438,8 @@
       "http_status": 200,
       "token_ok": true,
       "last_token": "A",
-      "latency_ms": 2643.64,
-      "checked_at": "2026-04-18T15:49:20Z",
+      "latency_ms": 2800.32,
+      "checked_at": "2026-04-18T16:26:49Z",
       "error_message": "",
       "raw_error_type": null,
       "buckets": [
@@ -433,6 +487,15 @@
           "avg_latency_ms": 2643.64,
           "last_error_message": "",
           "status": "operational"
+        },
+        {
+          "hour": "2026-04-18T16:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 2800.32,
+          "last_error_message": "",
+          "status": "operational"
         }
       ]
     },
@@ -445,8 +508,8 @@
       "http_status": 200,
       "token_ok": true,
       "last_token": "A",
-      "latency_ms": 2144.7,
-      "checked_at": "2026-04-18T15:49:23Z",
+      "latency_ms": 3082.72,
+      "checked_at": "2026-04-18T16:26:52Z",
       "error_message": "",
       "raw_error_type": null,
       "buckets": [
@@ -492,6 +555,15 @@
           "successes": 1,
           "last_http_status": 200,
           "avg_latency_ms": 2144.7,
+          "last_error_message": "",
+          "status": "operational"
+        },
+        {
+          "hour": "2026-04-18T16:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 3082.72,
           "last_error_message": "",
           "status": "operational"
         }
