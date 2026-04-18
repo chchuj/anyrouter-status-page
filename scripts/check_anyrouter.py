@@ -22,6 +22,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = PROJECT_ROOT / "docs" / "data"
 STATUS_PATH = DATA_DIR / "status.json"
 HISTORY_PATH = DATA_DIR / "history.json"
+DASHBOARD_PATH = DATA_DIR / "dashboard.json"
 
 
 def load_dotenv(path: Path) -> None:
@@ -116,15 +117,12 @@ def build_payload(model: str, prompt: str, session_id: str, account_uuid: str, d
             }
         ],
         "system": [
-            {
-                "type": "text",
-                "text": CC_BILLING_HEADER,
-            },
+            {"type": "text", "text": CC_BILLING_HEADER},
             {
                 "type": "text",
                 "text": CC_SYSTEM,
                 "cache_control": {"type": "ephemeral"},
-            }
+            },
         ],
         "metadata": {
             "user_id": json.dumps(
@@ -136,18 +134,10 @@ def build_payload(model: str, prompt: str, session_id: str, account_uuid: str, d
                 separators=(",", ":"),
             )
         },
-        # new-api currently routes Claude Code-style Opus 4.7 requests more
-        # reliably when the modern thinking/effort envelope is present. Keep
-        # the probe cheap by pairing it with max_tokens=1 and no tool schemas.
         "thinking": {"type": "adaptive"},
         "output_config": {"effort": "medium"},
         "context_management": {
-            "edits": [
-                {
-                    "type": "clear_thinking_20251015",
-                    "keep": "all",
-                }
-            ]
+            "edits": [{"type": "clear_thinking_20251015", "keep": "all"}]
         },
         "tools": [],
         "max_tokens": 1,
@@ -164,7 +154,6 @@ def extract_text(data: Dict[str, Any]) -> str:
         if isinstance(block, dict) and block.get("type") == "text":
             chunks.append(str(block.get("text", "")))
 
-    # Some gateways return OpenAI-style payloads even on Anthropic-compatible paths.
     for choice in data.get("choices", []):
         if not isinstance(choice, dict):
             continue
@@ -244,29 +233,6 @@ def parse_error_payload(status_code: int, body_text: str) -> Tuple[str, Optional
     return (message or f"HTTP {status_code}", raw_error_type)
 
 
-def default_status() -> Dict[str, Any]:
-    return {
-        "service_name": "Anyrouter Claude Code Probe",
-        "overall_status": "no_data",
-        "http_status": None,
-        "token_ok": False,
-        "last_token": "",
-        "latency_ms": None,
-        "checked_at": None,
-        "error_message": "No checks yet",
-        "raw_error_type": None,
-        "target_model": None,
-    }
-
-
-def default_history() -> Dict[str, Any]:
-    return {
-        "generated_at": None,
-        "window_hours": WINDOW_HOURS,
-        "buckets": [],
-    }
-
-
 def compute_status(checks: int, successes: int) -> str:
     if checks <= 0:
         return "no_data"
@@ -291,16 +257,58 @@ def write_json(path: Path, payload: Dict[str, Any]) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def merge_history(history: Dict[str, Any], snapshot: Dict[str, Any]) -> Dict[str, Any]:
+def mask_name(name: str) -> str:
+    text = (name or "").strip()
+    if not text:
+        return "***"
+    if len(text) == 1:
+        return f"{text}***"
+    return f"{text[0]}***{text[-1]}"
+
+
+def default_status() -> Dict[str, Any]:
+    return {
+        "service_name": "Anyrouter Claude Code Probe",
+        "overall_status": "no_data",
+        "http_status": None,
+        "token_ok": False,
+        "last_token": "",
+        "latency_ms": None,
+        "checked_at": None,
+        "error_message": "No checks yet",
+        "raw_error_type": None,
+        "target_model": None,
+    }
+
+
+def default_history() -> Dict[str, Any]:
+    return {"generated_at": None, "window_hours": WINDOW_HOURS, "buckets": []}
+
+
+def default_dashboard() -> Dict[str, Any]:
+    return {
+        "generated_at": None,
+        "window_hours": WINDOW_HOURS,
+        "summary": {
+            "total": 0,
+            "operational": 0,
+            "degraded": 0,
+            "major_outage": 0,
+            "no_data": 0,
+        },
+        "accounts": [],
+    }
+
+
+def merge_buckets(existing_buckets: List[Dict[str, Any]], snapshot: Dict[str, Any]) -> List[Dict[str, Any]]:
     now = datetime.fromisoformat(snapshot["checked_at"].replace("Z", "+00:00"))
     current_hour = now.replace(minute=0, second=0, microsecond=0)
     cutoff = current_hour - timedelta(hours=WINDOW_HOURS - 1)
 
-    raw_buckets = history.get("buckets", [])
-    buckets: Dict[str, Dict[str, Any]] = {}
-    for bucket in raw_buckets:
+    buckets_by_hour: Dict[str, Dict[str, Any]] = {}
+    for bucket in existing_buckets or []:
         try:
-            bucket_dt = datetime.fromisoformat(bucket["hour"].replace("Z", "+00:00"))
+            bucket_dt = datetime.fromisoformat(str(bucket["hour"]).replace("Z", "+00:00"))
         except Exception:
             continue
         if bucket_dt < cutoff:
@@ -308,18 +316,18 @@ def merge_history(history: Dict[str, Any], snapshot: Dict[str, Any]) -> Dict[str
         checks = int(bucket.get("checks", 0))
         successes = int(bucket.get("successes", 0))
         avg_latency_ms = bucket.get("avg_latency_ms")
-        buckets[iso_z(bucket_dt)] = {
+        buckets_by_hour[iso_z(bucket_dt)] = {
             "hour": iso_z(bucket_dt),
             "checks": checks,
             "successes": successes,
             "last_http_status": bucket.get("last_http_status"),
             "avg_latency_ms": avg_latency_ms,
-            "last_error_message": bucket.get("last_error_message"),
+            "last_error_message": bucket.get("last_error_message", ""),
             "status": compute_status(checks, successes),
         }
 
     hour_key = iso_z(current_hour)
-    bucket = buckets.get(
+    bucket = buckets_by_hour.get(
         hour_key,
         {
             "hour": hour_key,
@@ -342,18 +350,18 @@ def merge_history(history: Dict[str, Any], snapshot: Dict[str, Any]) -> Dict[str
         if previous_avg is None or prev_checks <= 0:
             bucket["avg_latency_ms"] = latency_ms
         else:
-            bucket["avg_latency_ms"] = round(((previous_avg * prev_checks) + latency_ms) / (prev_checks + 1), 2)
+            bucket["avg_latency_ms"] = round(((float(previous_avg) * prev_checks) + float(latency_ms)) / (prev_checks + 1), 2)
     bucket["last_http_status"] = snapshot.get("http_status")
     bucket["last_error_message"] = snapshot.get("error_message", "")
     bucket["status"] = compute_status(int(bucket["checks"]), int(bucket["successes"]))
-    buckets[hour_key] = bucket
+    buckets_by_hour[hour_key] = bucket
 
-    ordered = [buckets[key] for key in sorted(buckets.keys()) if datetime.fromisoformat(key.replace("Z", "+00:00")) >= cutoff]
-    return {
-        "generated_at": snapshot["checked_at"],
-        "window_hours": WINDOW_HOURS,
-        "buckets": ordered[-WINDOW_HOURS:],
-    }
+    ordered = [
+        buckets_by_hour[key]
+        for key in sorted(buckets_by_hour.keys())
+        if datetime.fromisoformat(key.replace("Z", "+00:00")) >= cutoff
+    ]
+    return ordered[-WINDOW_HOURS:]
 
 
 def run_probe(api_base: str, api_key: str, model: str, timeout: int, prompt: str) -> Dict[str, Any]:
@@ -432,12 +440,122 @@ def run_probe(api_base: str, api_key: str, model: str, timeout: int, prompt: str
     return status
 
 
+def load_accounts(args: argparse.Namespace) -> List[Dict[str, str]]:
+    accounts: List[Dict[str, str]] = []
+
+    multi_account_present = False
+    for i in range(1, 11):
+        idx = f"{i:02d}"
+        api_key = os.environ.get(f"ANYR_{idx}_API_KEY", "").strip()
+        if api_key:
+            multi_account_present = True
+            raw_name = os.environ.get(f"ANYR_{idx}_NAME", f"Account {idx}")
+            accounts.append(
+                {
+                    "id": f"acc{idx}",
+                    "name": mask_name(raw_name),
+                    "api_key": api_key,
+                    "api_base": args.api_base,
+                    "model": args.model,
+                }
+            )
+
+    if multi_account_present:
+        return accounts
+
+    if args.api_key:
+        raw_name = os.environ.get("ANYROUTER_ACCOUNT_NAME", "Account 01")
+        return [
+            {
+                "id": "acc01",
+                "name": mask_name(raw_name),
+                "api_key": args.api_key,
+                "api_base": args.api_base,
+                "model": args.model,
+            }
+        ]
+
+    return []
+
+
+def build_dashboard(existing_dashboard: Dict[str, Any], accounts: List[Dict[str, str]], timeout: int, prompt: str) -> Tuple[Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
+    existing_accounts_map = {
+        str(account.get("id")): account
+        for account in existing_dashboard.get("accounts", [])
+        if isinstance(account, dict) and account.get("id")
+    }
+
+    dashboard_accounts: List[Dict[str, Any]] = []
+    summary = {"total": 0, "operational": 0, "degraded": 0, "major_outage": 0, "no_data": 0}
+
+    for account in accounts:
+        snapshot = run_probe(account["api_base"], account["api_key"], account["model"], timeout, prompt)
+        old_account = existing_accounts_map.get(account["id"], {})
+        buckets = merge_buckets(old_account.get("buckets", []), snapshot)
+
+        account_payload = {
+            "id": account["id"],
+            "name": account["name"],
+            "service_name": f"{account['name']} Probe",
+            "target_model": snapshot.get("target_model"),
+            "overall_status": snapshot.get("overall_status"),
+            "http_status": snapshot.get("http_status"),
+            "token_ok": snapshot.get("token_ok"),
+            "last_token": snapshot.get("last_token"),
+            "latency_ms": snapshot.get("latency_ms"),
+            "checked_at": snapshot.get("checked_at"),
+            "error_message": snapshot.get("error_message"),
+            "raw_error_type": snapshot.get("raw_error_type"),
+            "buckets": buckets,
+        }
+        dashboard_accounts.append(account_payload)
+
+        summary["total"] += 1
+        status_key = account_payload["overall_status"] or "no_data"
+        if status_key not in summary:
+            status_key = "no_data"
+        summary[status_key] += 1
+
+    generated_at = iso_z(utc_now())
+    dashboard = {
+        "generated_at": generated_at,
+        "window_hours": WINDOW_HOURS,
+        "summary": summary,
+        "accounts": dashboard_accounts,
+    }
+
+    if dashboard_accounts:
+        first = dashboard_accounts[0]
+        legacy_status = {
+            "service_name": first.get("service_name") or "Anyrouter Claude Code Probe",
+            "overall_status": first.get("overall_status"),
+            "http_status": first.get("http_status"),
+            "token_ok": first.get("token_ok"),
+            "last_token": first.get("last_token"),
+            "latency_ms": first.get("latency_ms"),
+            "checked_at": first.get("checked_at"),
+            "error_message": first.get("error_message"),
+            "raw_error_type": first.get("raw_error_type"),
+            "target_model": first.get("target_model"),
+        }
+        legacy_history = {
+            "generated_at": generated_at,
+            "window_hours": WINDOW_HOURS,
+            "buckets": first.get("buckets", []),
+        }
+    else:
+        legacy_status = default_status()
+        legacy_history = default_history()
+
+    return dashboard, legacy_status, legacy_history
+
+
 def parse_args() -> argparse.Namespace:
     load_dotenv(PROJECT_ROOT / ".env")
 
     parser = argparse.ArgumentParser(description="Probe anyrouter and refresh status page data.")
     parser.add_argument("--api-base", default=os.environ.get("ANYROUTER_API_BASE", ""), help="Anyrouter base URL")
-    parser.add_argument("--api-key", default=os.environ.get("ANYROUTER_API_KEY", ""), help="Anyrouter API key")
+    parser.add_argument("--api-key", default=os.environ.get("ANYROUTER_API_KEY", ""), help="Single-account Anyrouter API key fallback")
     parser.add_argument(
         "--model",
         default=os.environ.get("ANYROUTER_MODEL", "claude-opus-4-7[1m]"),
@@ -454,9 +572,10 @@ def parse_args() -> argparse.Namespace:
         default="Reply with exactly one visible character: A",
         help="Probe prompt",
     )
-    parser.add_argument("--status-path", default=str(STATUS_PATH), help="status.json output path")
-    parser.add_argument("--history-path", default=str(HISTORY_PATH), help="history.json output path")
-    parser.add_argument("--print-json", action="store_true", help="Print the current snapshot to stdout")
+    parser.add_argument("--status-path", default=str(STATUS_PATH), help="Legacy status.json output path")
+    parser.add_argument("--history-path", default=str(HISTORY_PATH), help="Legacy history.json output path")
+    parser.add_argument("--dashboard-path", default=str(DASHBOARD_PATH), help="dashboard.json output path")
+    parser.add_argument("--print-json", action="store_true", help="Print the generated dashboard to stdout")
     return parser.parse_args()
 
 
@@ -465,32 +584,34 @@ def main() -> int:
     if not args.api_base:
         print("Missing ANYROUTER_API_BASE", file=sys.stderr)
         return 2
-    if not args.api_key:
-        print("Missing ANYROUTER_API_KEY", file=sys.stderr)
+
+    accounts = load_accounts(args)
+    if not accounts:
+        print("Missing account API key configuration", file=sys.stderr)
         return 2
 
-    snapshot = run_probe(args.api_base, args.api_key, args.model, args.timeout, args.prompt)
-    history = load_json(Path(args.history_path), default_history())
-    merged_history = merge_history(history, snapshot)
+    existing_dashboard = load_json(Path(args.dashboard_path), default_dashboard())
+    dashboard, legacy_status, legacy_history = build_dashboard(existing_dashboard, accounts, args.timeout, args.prompt)
 
     try:
-        write_json(Path(args.status_path), snapshot)
-        write_json(Path(args.history_path), merged_history)
+        write_json(Path(args.dashboard_path), dashboard)
+        write_json(Path(args.status_path), legacy_status)
+        write_json(Path(args.history_path), legacy_history)
     except OSError as exc:
         print(f"Failed to write data files: {exc}", file=sys.stderr)
         return 1
 
     if args.print_json:
-        print(json.dumps(snapshot, ensure_ascii=False, indent=2))
+        print(json.dumps(dashboard, ensure_ascii=False, indent=2))
     else:
         print(
             json.dumps(
                 {
-                    "overall_status": snapshot["overall_status"],
-                    "http_status": snapshot["http_status"],
-                    "token_ok": snapshot["token_ok"],
-                    "checked_at": snapshot["checked_at"],
-                    "error_message": snapshot["error_message"],
+                    "accounts": dashboard["summary"]["total"],
+                    "operational": dashboard["summary"]["operational"],
+                    "degraded": dashboard["summary"]["degraded"],
+                    "major_outage": dashboard["summary"]["major_outage"],
+                    "checked_at": dashboard["generated_at"],
                 },
                 ensure_ascii=False,
             )
