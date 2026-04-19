@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-19T20:50:24Z",
+  "generated_at": "2026-04-19T21:27:40Z",
   "window_hours": 168,
   "summary": {
     "total": 8,
@@ -18,8 +18,8 @@
       "http_status": 200,
       "token_ok": true,
       "last_token": "A",
-      "latency_ms": 3438.21,
-      "checked_at": "2026-04-19T20:50:02Z",
+      "latency_ms": 2733.42,
+      "checked_at": "2026-04-19T21:27:23Z",
       "error_message": "",
       "raw_error_type": null,
       "buckets": [
@@ -265,6 +265,15 @@
           "avg_latency_ms": 3438.21,
           "last_error_message": "",
           "status": "operational"
+        },
+        {
+          "hour": "2026-04-19T21:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 2733.42,
+          "last_error_message": "",
+          "status": "operational"
         }
       ]
     },
@@ -277,8 +286,8 @@
       "http_status": 200,
       "token_ok": true,
       "last_token": "A",
-      "latency_ms": 2421.67,
-      "checked_at": "2026-04-19T20:50:06Z",
+      "latency_ms": 2245.72,
+      "checked_at": "2026-04-19T21:27:26Z",
       "error_message": "",
       "raw_error_type": null,
       "buckets": [
@@ -524,6 +533,15 @@
           "avg_latency_ms": 2421.67,
           "last_error_message": "",
           "status": "operational"
+        },
+        {
+          "hour": "2026-04-19T21:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 2245.72,
+          "last_error_message": "",
+          "status": "operational"
         }
       ]
     },
@@ -536,8 +554,8 @@
       "http_status": 200,
       "token_ok": true,
       "last_token": "A",
-      "latency_ms": 2436.63,
-      "checked_at": "2026-04-19T20:50:08Z",
+      "latency_ms": 2294.6,
+      "checked_at": "2026-04-19T21:27:28Z",
       "error_message": "",
       "raw_error_type": null,
       "buckets": [
@@ -783,6 +801,15 @@
           "avg_latency_ms": 2436.63,
           "last_error_message": "",
           "status": "operational"
+        },
+        {
+          "hour": "2026-04-19T21:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 2294.6,
+          "last_error_message": "",
+          "status": "operational"
         }
       ]
     },
@@ -795,8 +822,8 @@
       "http_status": 200,
       "token_ok": true,
       "last_token": "A",
-      "latency_ms": 4169.33,
-      "checked_at": "2026-04-19T20:50:11Z",
+      "latency_ms": 1700.83,
+      "checked_at": "2026-04-19T21:27:30Z",
       "error_message": "",
       "raw_error_type": null,
       "buckets": [
@@ -1042,6 +1069,15 @@
           "avg_latency_ms": 4169.33,
           "last_error_message": "",
           "status": "operational"
+        },
+        {
+          "hour": "2026-04-19T21:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 1700.83,
+          "last_error_message": "",
+          "status": "operational"
         }
       ]
     },
@@ -1054,8 +1090,8 @@
       "http_status": 200,
       "token_ok": true,
       "last_token": "A",
-      "latency_ms": 1590.58,
-      "checked_at": "2026-04-19T20:50:15Z",
+      "latency_ms": 2287.89,
+      "checked_at": "2026-04-19T21:27:32Z",
       "error_message": "",
       "raw_error_type": null,
       "buckets": [
@@ -1301,6 +1337,15 @@
           "avg_latency_ms": 1590.58,
           "last_error_message": "",
           "status": "operational"
+        },
+        {
+          "hour": "2026-04-19T21:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 2287.89,
+          "last_error_message": "",
+          "status": "operational"
         }
       ]
     },
@@ -1313,8 +1358,8 @@
       "http_status": 200,
       "token_ok": true,
       "last_token": "A",
-      "latency_ms": 2053.24,
-      "checked_at": "2026-04-19T20:50:16Z",
+      "latency_ms": 2070.85,
+      "checked_at": "2026-04-19T21:27:34Z",
       "error_message": "",
       "raw_error_type": null,
       "buckets": [
@@ -1560,6 +1605,15 @@
           "avg_latency_ms": 2053.24,
           "last_error_message": "",
           "status": "operational"
+        },
+        {
+          "hour": "2026-04-19T21:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 2070.85,
+          "last_error_message": "",
+          "status": "operational"
         }
       ]
     },
@@ -1572,8 +1626,8 @@
       "http_status": 200,
       "token_ok": true,
       "last_token": "A",
-      "latency_ms": 2252.57,
-      "checked_at": "2026-04-19T20:50:18Z",
+      "latency_ms": 1968.58,
+      "checked_at": "2026-04-19T21:27:36Z",
       "error_message": "",
       "raw_error_type": null,
       "buckets": [
@@ -1819,6 +1873,15 @@
           "avg_latency_ms": 2252.57,
           "last_error_message": "",
           "status": "operational"
+        },
+        {
+          "hour": "2026-04-19T21:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 1968.58,
+          "last_error_message": "",
+          "status": "operational"
         }
       ]
     },
@@ -1831,8 +1894,8 @@
       "http_status": 200,
       "token_ok": true,
       "last_token": "A",
-      "latency_ms": 3600.78,
-      "checked_at": "2026-04-19T20:50:21Z",
+      "latency_ms": 1687.28,
+      "checked_at": "2026-04-19T21:27:38Z",
       "error_message": "",
       "raw_error_type": null,
       "buckets": [
@@ -2076,6 +2139,15 @@
           "successes": 1,
           "last_http_status": 200,
           "avg_latency_ms": 3600.78,
+          "last_error_message": "",
+          "status": "operational"
+        },
+        {
+          "hour": "2026-04-19T21:00:00Z",
+          "checks": 1,
+          "successes": 1,
+          "last_http_status": 200,
+          "avg_latency_ms": 1687.28,
           "last_error_message": "",
           "status": "operational"
         }
